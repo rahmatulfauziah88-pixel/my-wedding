@@ -1,10 +1,9 @@
-// Isi dengan konfigurasi aplikasi Web dari Firebase Console > Project settings.
-// Konfigurasi web Firebase bukan password; keamanan data diatur melalui Firestore Rules.
 export const firebaseConfig = {
-  apiKey: "ISI_API_KEY",
-  authDomain: "ISI_PROJECT_ID.firebaseapp.com",
-  projectId: "ISI_PROJECT_ID",
-  storageBucket: "ISI_PROJECT_ID.appspot.com",
-  messagingSenderId: "ISI_MESSAGING_SENDER_ID",
-  appId: "ISI_APP_ID"
+  apiKey: "AIzaSyBdCY8DVwTYjGEfxFKowBaW5JsV9tDSrVo",
+  authDomain: "mywedding-aed12.firebaseapp.com",
+  projectId: "mywedding-aed12",
+  storageBucket: "mywedding-aed12.firebasestorage.app",
+  messagingSenderId: "219329878429",
+  appId: "1:219329878429:web:ee0db56d4ca018b1aa3774",
+  measurementId: "G-M2MDRL17CZ"
 };
