@@ -1,0 +1,209 @@
+[
+  {
+    "index": 1,
+    "path": "assets/videos/video-pembuka.mp4",
+    "mime": "video/mp4",
+    "bytes": 2051858,
+    "sha256": "0de295c95f0320211d13592380be4d15e2c429f096c6632eaf00cb69bb360c08",
+    "media_probe": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "width": 464,
+          "height": 832,
+          "bit_rate": "306121"
+        },
+        {
+          "codec_name": "aac",
+          "sample_rate": "44100",
+          "channels": 2,
+          "bit_rate": "80145"
+        }
+      ],
+      "format": {
+        "duration": "41.100000"
+      }
+    }
+  },
+  {
+    "index": 2,
+    "path": "assets/images/portrait-awang.jpg",
+    "mime": "image/jpeg",
+    "bytes": 159053,
+    "sha256": "497e5dfeaab243c9e0b05acf3c46bf17a8ee2094db0f25a72909b9d3ed7d1ef0",
+    "dimensions": "787x1400",
+    "format": "JPEG"
+  },
+  {
+    "index": 3,
+    "path": "assets/images/portrait-rahma.jpg",
+    "mime": "image/jpeg",
+    "bytes": 179670,
+    "sha256": "5da313b4c61e42d025896ad6b28b571038659f0d24fb7ca6634f9e379f654d83",
+    "dimensions": "787x1400",
+    "format": "JPEG"
+  },
+  {
+    "index": 4,
+    "path": "assets/images/album/foto-01.jpg",
+    "mime": "image/jpeg",
+    "bytes": 225017,
+    "sha256": "0412d3ebc22944ac0a641081fe0220282e7a59560041a0bac8363f6415cabfc6",
+    "dimensions": "1400x1050",
+    "format": "JPEG"
+  },
+  {
+    "index": 5,
+    "path": "assets/images/album/foto-02.jpg",
+    "mime": "image/jpeg",
+    "bytes": 298059,
+    "sha256": "71d2ab440850db75331288f2cbb2a56012b377ae0a19f595ca0cf8ad1ac75eba",
+    "dimensions": "1050x1400",
+    "format": "JPEG"
+  },
+  {
+    "index": 6,
+    "path": "assets/images/album/foto-03.jpg",
+    "mime": "image/jpeg",
+    "bytes": 220698,
+    "sha256": "14f3858fc7e12eb6c16869091f10707c16adf48968cab09ab8fadc1214e189e1",
+    "dimensions": "1054x1400",
+    "format": "JPEG"
+  },
+  {
+    "index": 7,
+    "path": "assets/images/album/foto-04.jpg",
+    "mime": "image/jpeg",
+    "bytes": 240557,
+    "sha256": "af8964189137c99b3fa5bcde8741986d21ff8f229be6d7125e06d61a4f150bd1",
+    "dimensions": "787x1400",
+    "format": "JPEG"
+  },
+  {
+    "index": 8,
+    "path": "assets/images/album/foto-05.jpg",
+    "mime": "image/jpeg",
+    "bytes": 158684,
+    "sha256": "e6cda5c6194eb69c3de62f8a144fad2b1e52738defff1a95f92e17007bb812ab",
+    "dimensions": "933x1400",
+    "format": "JPEG"
+  },
+  {
+    "index": 9,
+    "path": "assets/images/album/foto-06.jpg",
+    "mime": "image/jpeg",
+    "bytes": 64844,
+    "sha256": "996033cdf34d8fc31a0f2cde2dfdb60cb4c47a48d523a1180bf6eba630017b9d",
+    "dimensions": "900x800",
+    "format": "JPEG"
+  },
+  {
+    "index": 10,
+    "path": "assets/images/album/foto-07.jpg",
+    "mime": "image/jpeg",
+    "bytes": 151864,
+    "sha256": "4b6cf758f2c989e5b75d545e3138ca07e0f1ffcba28c57dcbdf703b2670b42ec",
+    "dimensions": "1051x1400",
+    "format": "JPEG"
+  },
+  {
+    "index": 11,
+    "path": "assets/images/album/foto-08.jpg",
+    "mime": "image/jpeg",
+    "bytes": 103361,
+    "sha256": "01e901d363061c9142d86add4554ffba183b3399acc6a46aa22418f1fceefcc8",
+    "dimensions": "900x800",
+    "format": "JPEG"
+  },
+  {
+    "index": 12,
+    "path": "assets/images/album/foto-09.jpg",
+    "mime": "image/jpeg",
+    "bytes": 123933,
+    "sha256": "c8635c613c428814937f9670a90a93ce1baa75ac50e5be11ec3f70b2bcf455c8",
+    "dimensions": "787x1400",
+    "format": "JPEG"
+  },
+  {
+    "index": 13,
+    "path": "assets/images/album/foto-10.jpg",
+    "mime": "image/jpeg",
+    "bytes": 93757,
+    "sha256": "47322b9284beb0c10c937642dcde3d56e7661d6ba53996d995e9fad658e5528a",
+    "dimensions": "1050x1400",
+    "format": "JPEG"
+  },
+  {
+    "index": 14,
+    "path": "assets/images/album/foto-11.jpg",
+    "mime": "image/jpeg",
+    "bytes": 143546,
+    "sha256": "596282670584814c4c6b74ecf1eec89f831413d0c96d0b7b64fb34c867b63f22",
+    "dimensions": "1050x1400",
+    "format": "JPEG"
+  },
+  {
+    "index": 15,
+    "path": "assets/images/poster-cinematic.jpg",
+    "mime": "image/jpeg",
+    "bytes": 17002,
+    "sha256": "8fddd1aef58e0d0ae7590a379c231cecba768301fe71d0e5c71e2f9e6ad9b74c",
+    "dimensions": "960x540",
+    "format": "JPEG"
+  },
+  {
+    "index": 16,
+    "path": "assets/videos/video-cinematic.mp4",
+    "mime": "video/mp4",
+    "bytes": 4681462,
+    "sha256": "9e5220a828a49c54c71ddf55b3a6165aa3a4ad693cecfa7459421d337bc5d453",
+    "media_probe": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "width": 1280,
+          "height": 720,
+          "bit_rate": "871408"
+        },
+        {
+          "codec_name": "aac",
+          "sample_rate": "44100",
+          "channels": 2,
+          "bit_rate": "80132"
+        }
+      ],
+      "format": {
+        "duration": "39.000000"
+      }
+    }
+  },
+  {
+    "index": 17,
+    "path": "assets/images/qris.png",
+    "mime": "image/png",
+    "bytes": 262394,
+    "sha256": "cf30951ef77839c3b574af758d7bdc563ee89a4b34f23e00c41bb3656e17dcc6",
+    "dimensions": "559x562",
+    "format": "PNG"
+  },
+  {
+    "index": 18,
+    "path": "assets/images/logo-mawar-digital.jpg",
+    "mime": "image/jpeg",
+    "bytes": 36852,
+    "sha256": "98857e249c9bafe368487db738e714a260b602a0e196d3584c0118d270af3b81",
+    "dimensions": "420x420",
+    "format": "JPEG"
+  },
+  {
+    "index": 19,
+    "path": "assets/audio/backsound.mp3",
+    "mime": "audio/mpeg",
+    "bytes": 1541652,
+    "sha256": "b3e1928d2643c3b16e1904bb00aa4c1d3e76d4d4e7ad8302cef73b7ff0cde99a"
+  }
+]
