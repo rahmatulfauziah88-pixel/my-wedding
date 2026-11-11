@@ -1851,18 +1851,36 @@ o.observe(document.body,{attributes:true,attributeFilter:['class']});
 </script>
 
 <script>
-/* Fallback pembuka: pastikan sampul tidak tertahan oleh animasi pada perangkat mobile. */
+/* Pemulihan pembuka untuk browser mobile: pastikan isi undangan terlihat setelah sampul ditutup. */
 (() => {
   const cover = document.getElementById("cover");
   const button = document.getElementById("openButton");
-  if (!cover || !button) return;
-  button.addEventListener("click", () => {
-    window.setTimeout(() => {
+  const revealInvitation = () => {
+    document.body.classList.add("opened");
+    document.body.classList.remove("locked");
+    const main = document.querySelector("body > main");
+    if (main) {
+      main.style.visibility = "visible";
+      main.style.opacity = "1";
+      main.style.display = "block";
+    }
+    const heroContent = document.querySelector(".hero-content");
+    if (heroContent) {
+      heroContent.style.opacity = "1";
+      heroContent.style.visibility = "visible";
+      heroContent.style.transform = "none";
+      heroContent.style.animation = "none";
+    }
+    if (cover) {
       cover.classList.add("hide");
-      document.body.classList.remove("locked");
-      document.body.classList.add("opened");
-    }, 900);
-  }, { once: true });
+      cover.style.pointerEvents = "none";
+    }
+    window.scrollTo(0, 0);
+  };
+  if (button) button.addEventListener("click", () => {
+    window.setTimeout(revealInvitation, 1000);
+    window.setTimeout(revealInvitation, 2200);
+  });
 })();
 </script>
 <script type="module">
