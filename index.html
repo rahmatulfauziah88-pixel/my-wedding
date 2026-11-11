@@ -1689,95 +1689,102 @@ document.querySelectorAll(".reveal").forEach((element) => {
   observer.observe(element);
 });
 
-/* Ucapan disimpan di browser.
-   Karena ini versi SATU FILE HTML, ucapan tidak membutuhkan PHP. */
-const STORAGE_KEY = "awang_rahma_wishes_v1";
-const wishForm = document.getElementById("wishForm");
-const messagesBox = document.getElementById("messages");
-const formStatus = document.getElementById("formStatus");
+/* Ucapan & doa: sinkronisasi bersama melalui Cloud Firestore.
+   Import dinamis menjaga skrip utama undangan tetap berjalan seperti semula. */
+(() => {
+  const wishForm = document.getElementById("wishForm");
+  const messagesBox = document.getElementById("messages");
+  const formStatus = document.getElementById("formStatus");
+  if (!wishForm || !messagesBox || !formStatus) return;
 
-function escapeHTML(value) {
-  return String(value).replace(/[&<>"']/g, (character) => {
-    const entities = {
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#039;"
-    };
+  const escapeWish = (value) => String(value ?? "").replace(/[&<>"']/g, (ch) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
+  })[ch]);
 
-    return entities[character];
-  });
-}
+  const formatWishDate = (value) => {
+    const date = value && typeof value.toDate === "function" ? value.toDate() : new Date(value);
+    return Number.isNaN(date.getTime()) ? "" : date.toLocaleDateString("id-ID");
+  };
 
-function getWishes() {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-  } catch {
-    return [];
-  }
-}
+  (async () => {
+    try {
+      const [{ firebaseConfig }, appSdk, storeSdk] = await Promise.all([
+        import("./firebase-config.js"),
+        import("https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js"),
+        import("https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js")
+      ]);
+      if (!firebaseConfig?.apiKey || !firebaseConfig?.projectId) {
+        throw new Error("Konfigurasi Firebase belum tersedia.");
+      }
 
-function saveWishes(wishes) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(wishes));
-}
+      // Nama app terpisah mencegah bentrok dengan Firebase app untuk nama tamu.
+      const appName = "wedding-wishes";
+      const existingApp = appSdk.getApps().find((item) => item.name === appName);
+      const app = existingApp || appSdk.initializeApp(firebaseConfig, appName);
+      const db = storeSdk.getFirestore(app);
 
-function renderWishes() {
-  const wishes = getWishes();
+      storeSdk.onSnapshot(
+        storeSdk.query(
+          storeSdk.collection(db, "wishes"),
+          storeSdk.orderBy("createdAt", "desc")
+        ),
+        (snapshot) => {
+          messagesBox.innerHTML = snapshot.docs.map((item) => {
+            const wish = item.data();
+            return `
+              <article class="message">
+                <strong>${escapeWish(wish.name)}</strong>
+                <time>${formatWishDate(wish.createdAt)}</time>
+                <div class="badge">${escapeWish(wish.attendance)}</div>
+                <p>${escapeWish(wish.message)}</p>
+              </article>
+            `;
+          }).join("");
+        },
+        (error) => {
+          console.error("Ucapan tidak dapat dimuat:", error);
+          formStatus.textContent = "Ucapan belum dapat dimuat. Silakan coba lagi nanti.";
+        }
+      );
 
-  if (!wishes.length) {
-    messagesBox.innerHTML = "";
-    return;
-  }
+      wishForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const data = new FormData(wishForm);
+        const name = String(data.get("name") || "").trim().slice(0, 80);
+        const attendance = String(data.get("attendance") || "Hadir");
+        const message = String(data.get("message") || "").trim().slice(0, 500);
 
-  messagesBox.innerHTML = wishes
-    .slice()
-    .reverse()
-    .map((wish) => {
-      const date = new Date(wish.createdAt);
+        if (!name || !message) {
+          formStatus.textContent = "Nama dan ucapan wajib diisi.";
+          return;
+        }
 
-      return `
-        <article class="message">
-          <strong>${escapeHTML(wish.name)}</strong>
-          <time>${date.toLocaleDateString("id-ID")}</time>
-          <div class="badge">${escapeHTML(wish.attendance)}</div>
-          <p>${escapeHTML(wish.message)}</p>
-        </article>
-      `;
-    })
-    .join("");
-}
+        const submitButton = wishForm.querySelector('button[type="submit"], button:not([type])');
+        if (submitButton) submitButton.disabled = true;
+        formStatus.textContent = "Mengirim ucapan...";
 
-wishForm.addEventListener("submit", (event) => {
-  event.preventDefault();
-
-  const formData = new FormData(wishForm);
-
-  const name = String(formData.get("name") || "").trim();
-  const attendance = String(formData.get("attendance") || "Hadir");
-  const message = String(formData.get("message") || "").trim();
-
-  if (!name || !message) {
-    formStatus.textContent = "Nama dan ucapan wajib diisi.";
-    return;
-  }
-
-  const wishes = getWishes();
-
-  wishes.push({
-    name: name.slice(0, 80),
-    attendance,
-    message: message.slice(0, 500),
-    createdAt: new Date().toISOString()
-  });
-
-  saveWishes(wishes);
-  wishForm.reset();
-  formStatus.textContent = "Ucapan berhasil disimpan di perangkat ini. ✓";
-  renderWishes();
-});
-
-renderWishes();
+        try {
+          await storeSdk.addDoc(storeSdk.collection(db, "wishes"), {
+            name,
+            attendance,
+            message,
+            createdAt: storeSdk.serverTimestamp()
+          });
+          wishForm.reset();
+          formStatus.textContent = "Ucapan berhasil dikirim. Terima kasih! ✓";
+        } catch (error) {
+          console.error("Ucapan gagal disimpan:", error);
+          formStatus.textContent = "Ucapan gagal dikirim. Periksa izin Firebase atau koneksi internet.";
+        } finally {
+          if (submitButton) submitButton.disabled = false;
+        }
+      });
+    } catch (error) {
+      console.error("Fitur ucapan Firestore gagal dijalankan:", error);
+      formStatus.textContent = "Fitur ucapan sementara belum tersedia. Silakan coba lagi nanti.";
+    }
+  })();
+})();
 
   </script>
 <script>
