@@ -1850,6 +1850,21 @@ o.observe(document.body,{attributes:true,attributeFilter:['class']});
 })();
 </script>
 
+<script>
+/* Fallback pembuka: pastikan sampul tidak tertahan oleh animasi pada perangkat mobile. */
+(() => {
+  const cover = document.getElementById("cover");
+  const button = document.getElementById("openButton");
+  if (!cover || !button) return;
+  button.addEventListener("click", () => {
+    window.setTimeout(() => {
+      cover.classList.add("hide");
+      document.body.classList.remove("locked");
+      document.body.classList.add("opened");
+    }, 900);
+  }, { once: true });
+})();
+</script>
 <script type="module">
   import { firebaseConfig } from "./firebase-config.js";
   import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
