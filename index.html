@@ -1689,92 +1689,7 @@ document.querySelectorAll(".reveal").forEach((element) => {
   observer.observe(element);
 });
 
-/* Ucapan disimpan di browser.
-   Karena ini versi SATU FILE HTML, ucapan tidak membutuhkan PHP. */
-const STORAGE_KEY = "awang_rahma_wishes_v1";
-const wishForm = document.getElementById("wishForm");
-const messagesBox = document.getElementById("messages");
-const formStatus = document.getElementById("formStatus");
-
-function escapeHTML(value) {
-  return String(value).replace(/[&<>"']/g, (character) => {
-    const entities = {
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#039;"
-    };
-
-    return entities[character];
-  });
-}
-
-function getWishes() {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-  } catch {
-    return [];
-  }
-}
-
-function saveWishes(wishes) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(wishes));
-}
-
-function renderWishes() {
-  const wishes = getWishes();
-
-  if (!wishes.length) {
-    messagesBox.innerHTML = "";
-    return;
-  }
-
-  messagesBox.innerHTML = wishes
-    .slice()
-    .reverse()
-    .map((wish) => {
-      const date = new Date(wish.createdAt);
-
-      return `
-        <article class="message">
-          <strong>${escapeHTML(wish.name)}</strong>
-          <time>${date.toLocaleDateString("id-ID")}</time>
-          <div class="badge">${escapeHTML(wish.attendance)}</div>
-          <p>${escapeHTML(wish.message)}</p>
-        </article>
-      `;
-    })
-    .join("");
-}
-
-wishForm.addEventListener("submit", (event) => {
-  event.preventDefault();
-
-  const formData = new FormData(wishForm);
-
-  const name = String(formData.get("name") || "").trim();
-  const attendance = String(formData.get("attendance") || "Hadir");
-  const message = String(formData.get("message") || "").trim();
-
-  if (!name || !message) {
-    formStatus.textContent = "Nama dan ucapan wajib diisi.";
-    return;
-  }
-
-  const wishes = getWishes();
-
-  wishes.push({
-    name: name.slice(0, 80),
-    attendance,
-    message: message.slice(0, 500),
-    createdAt: new Date().toISOString()
-  });
-
-  saveWishes(wishes);
-  wishForm.reset();
-  formStatus.textContent = "Ucapan berhasil disimpan di perangkat ini. ✓";
-  renderWishes();
+/* Ucapan sekarang menggunakan Firestore agar tampil lintas perangkat. */
 });
 
 renderWishes();
@@ -1937,22 +1852,108 @@ o.observe(document.body,{attributes:true,attributeFilter:['class']});
 
 <script type="module">
   import { firebaseConfig } from "./firebase-config.js";
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
-  const token = new URLSearchParams(location.search).get("to");
-  const target = document.getElementById("heroGuestName");
-  const configured = firebaseConfig && firebaseConfig.apiKey && firebaseConfig.projectId && !String(firebaseConfig.projectId).startsWith("ISI_");
-  if (token && target && configured) {
+  import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+  import {
+    getFirestore, doc, getDoc, collection, addDoc,
+    onSnapshot, query, orderBy, limit, serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+  const configured = firebaseConfig && firebaseConfig.apiKey && firebaseConfig.projectId
+    && !String(firebaseConfig.projectId).startsWith("ISI_");
+
+  if (configured) {
     try {
-      const app = initializeApp(firebaseConfig);
+      const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
       const db = getFirestore(app);
-      const snap = await getDoc(doc(db, "guests", token));
-      if (snap.exists() && snap.data().name) target.textContent = snap.data().name;
-      else target.textContent = "Tamu Undangan";
-    } catch (err) {
-      console.error("Nama tamu tidak dapat dimuat:", err);
-      target.textContent = "Tamu Undangan";
+      const token = new URLSearchParams(location.search).get("to");
+      const target = document.getElementById("heroGuestName");
+      if (token && target) {
+        try {
+          const snap = await getDoc(doc(db, "guests", token));
+          target.textContent = snap.exists() && snap.data().name ? snap.data().name : "Tamu Undangan";
+        } catch (err) {
+          console.error("Nama tamu tidak dapat dimuat:", err);
+          target.textContent = "Tamu Undangan";
+        }
+      }
+
+      const wishForm = document.getElementById("wishForm");
+      const messagesBox = document.getElementById("messages");
+      const formStatus = document.getElementById("formStatus");
+
+      function escapeHTML(value) {
+        return String(value).replace(/[&<>"']/g, (character) => ({
+          "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
+        })[character]);
+      }
+
+      function renderWishes(wishes) {
+        if (!wishes.length) {
+          messagesBox.innerHTML = '<p class="lead">Belum ada ucapan. Jadilah yang pertama memberikan doa.</p>';
+          return;
+        }
+        messagesBox.innerHTML = wishes.map((wish) => {
+          const created = wish.createdAt && typeof wish.createdAt.toDate === "function"
+            ? wish.createdAt.toDate()
+            : new Date();
+          return `
+            <article class="message">
+              <strong>${escapeHTML(wish.name || "Tamu")}</strong>
+              <time>${created.toLocaleDateString("id-ID")}</time>
+              <div class="badge">${escapeHTML(wish.attendance || "")}</div>
+              <p>${escapeHTML(wish.message || "")}</p>
+            </article>`;
+        }).join("");
+      }
+
+      const wishesQuery = query(collection(db, "wishes"), orderBy("createdAt", "desc"), limit(100));
+      onSnapshot(wishesQuery, (snapshot) => {
+        renderWishes(snapshot.docs.map((item) => item.data()));
+      }, (error) => {
+        console.error("Ucapan tidak dapat dimuat:", error);
+        formStatus.textContent = "Ucapan belum dapat dimuat. Silakan coba lagi nanti.";
+      });
+
+      wishForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const formData = new FormData(wishForm);
+        const name = String(formData.get("name") || "").trim();
+        const attendance = String(formData.get("attendance") || "Hadir").trim();
+        const message = String(formData.get("message") || "").trim();
+        if (!name || !message) {
+          formStatus.textContent = "Nama dan ucapan wajib diisi.";
+          return;
+        }
+        if (wishForm.dataset.sending === "true") return;
+        wishForm.dataset.sending = "true";
+        const submitButton = wishForm.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+        formStatus.textContent = "Mengirim ucapan...";
+        try {
+          await addDoc(collection(db, "wishes"), {
+            name: name.slice(0, 80),
+            attendance,
+            message: message.slice(0, 500),
+            createdAt: serverTimestamp()
+          });
+          wishForm.reset();
+          formStatus.textContent = "Terima kasih! Ucapan berhasil dikirim. ✓";
+        } catch (error) {
+          console.error("Ucapan gagal dikirim:", error);
+          formStatus.textContent = "Ucapan belum terkirim. Periksa koneksi atau coba lagi.";
+        } finally {
+          wishForm.dataset.sending = "false";
+          submitButton.disabled = false;
+        }
+      });
+    } catch (error) {
+      console.error("Firebase tidak dapat dijalankan:", error);
+      const status = document.getElementById("formStatus");
+      if (status) status.textContent = "Layanan ucapan sedang tidak tersedia.";
     }
+  } else {
+    const status = document.getElementById("formStatus");
+    if (status) status.textContent = "Konfigurasi Firebase belum lengkap.";
   }
 </script>
 
