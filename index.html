@@ -1935,14 +1935,14 @@ o.observe(document.body,{attributes:true,attributeFilter:['class']});
 
 <script type="module">
   import { firebaseConfig } from "./firebase-config.js";
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+  import { getApp, getApps, initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
   import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
   const token = new URLSearchParams(location.search).get("to");
   const target = document.getElementById("heroGuestName");
   const configured = firebaseConfig && firebaseConfig.apiKey && firebaseConfig.projectId && !String(firebaseConfig.projectId).startsWith("ISI_");
   if (token && target && configured) {
     try {
-      const app = initializeApp(firebaseConfig);
+      const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
       const db = getFirestore(app);
       const snap = await getDoc(doc(db, "guests", token));
       if (snap.exists() && snap.data().name) target.textContent = snap.data().name;
